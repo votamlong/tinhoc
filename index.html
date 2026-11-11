@@ -75,7 +75,7 @@ dialog label input,dialog label select{display:block;width:100%;margin-top:4px;c
 <label>Email<input id="le" type="email" required autocomplete="username"></label>
 <label>Mật khẩu<input id="lp" type="password" required autocomplete="current-password"></label>
 <p class="err" id="lerr"></p><button class="b p" style="width:100%">Đăng nhập</button></form></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.min.js"></script>
 <script>
 const KEY = 'qltruong_v1';
 const $ = s => document.querySelector(s);
@@ -251,8 +251,8 @@ async function start() {
   if (SUPABASE_URL.includes('YOUR-PROJECT')) return showLogin('Chưa cấu hình Supabase. Xem README.md.');
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return showLogin();
-  const { data: p } = await sb.from('profiles').select('name,role').eq('id', session.user.id).single();
-  if (!p) { await sb.auth.signOut(); return showLogin('Tài khoản chưa được cấp quyền.'); }
+  const { data: p, error: pe } = await sb.from('profiles').select('name,role').eq('id', session.user.id).single();
+  if (pe || !p) { await sb.auth.signOut(); return showLogin('Không đọc được quyền tài khoản: ' + (pe?.message || 'chưa có hồ sơ')); }
   me = p; await loadAll();
   $('#login').style.display = 'none';
   $('#who').textContent = (p.name || session.user.email) + ' · ' + (isAdmin() ? 'Quản trị' : 'Giáo viên');
@@ -260,9 +260,11 @@ async function start() {
 }
 $('#lf').onsubmit = async e => {
   e.preventDefault();
-  const { error } = await sb.auth.signInWithPassword({email: $('#le').value.trim(), password: $('#lp').value});
-  if (error) return showLogin('Sai email hoặc mật khẩu.');
-  $('#lp').value = ''; start();
+  try {
+    const { error } = await sb.auth.signInWithPassword({email: $('#le').value.trim(), password: $('#lp').value});
+    if (error) return showLogin(/invalid login/i.test(error.message) ? 'Sai email hoặc mật khẩu.' : /fetch|network/i.test(error.message) ? 'Không kết nối được Supabase. Kiểm tra lại SUPABASE_URL.' : 'Lỗi đăng nhập: ' + error.message);
+    $('#lp').value = ''; await start();
+  } catch (err) { showLogin('Lỗi: ' + err.message); }
 };
 $('#lo').onclick = async () => { await sb.auth.signOut(); me = null; db = EMPTY(); showLogin(); };
 document.addEventListener('visibilitychange', () => { if (!document.hidden && me) loadAll().then(render); });
