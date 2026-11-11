@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quản lý trường học</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--side:#17324D;--bg:#F4F6F8;--card:#fff;--line:#DDE3EA;--text:#1B2733;--muted:#5E6E7E;--accent:#E8A33D;--btn:#17324D;--ok:#2E8B6B;--bad:#C8503C;--warn:#B7791F;--r:8px}
+@media(prefers-color-scheme:dark){:root{--bg:#121A22;--card:#1A2530;--line:#2B3A48;--text:#E6ECF2;--muted:#93A4B5;--btn:#3E7BBF;--ok:#4CB391;--bad:#E27A66;--warn:#E8A33D}}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Be Vietnam Pro',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:var(--side);color:#fff;padding:20px 12px;position:sticky;top:0;height:100vh}
+aside h1{font-size:17px;margin:0 8px 4px;font-weight:700}
+aside p{font-size:12px;margin:0 8px 20px;color:#AFC2D6}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;color:#D5E1ED;padding:10px 12px;border-radius:var(--r);font:inherit;font-size:14px;cursor:pointer;margin-bottom:2px}
+nav button:hover{background:rgba(255,255,255,.08)}
+nav button.on{background:#fff;color:var(--side);font-weight:600;box-shadow:inset 4px 0 0 var(--accent)}
+main{padding:28px 32px;max-width:1100px;width:100%}
+h2{font-size:24px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px;font-size:14px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.bar .grow{flex:1}
+input,select{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--card);color:var(--text);min-width:0}
+button.b{font:inherit;font-size:14px;padding:8px 14px;border-radius:var(--r);border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer}
+button.b.p{background:var(--btn);color:#fff;border-color:var(--btn);font-weight:600}
+button.b.d{color:var(--bad)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.stat b{display:block;font-size:30px;line-height:1.1}
+.stat span{color:var(--muted);font-size:13px}
+.stat.hi{border-left:4px solid var(--accent)}
+.wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:13px;background:rgba(127,127,127,.06)}
+tr:last-child td{border-bottom:0}
+td.act{text-align:right}
+td.act button{margin-left:4px;padding:4px 10px;font-size:13px}
+.empty{padding:32px;text-align:center;color:var(--muted)}
+td input.g{width:70px}
+.tag{padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(127,127,127,.15)}
+.tag.Giỏi{color:var(--ok)}.tag.Yếu{color:var(--bad)}.tag.Khá{color:var(--btn)}.tag.TB{color:var(--warn)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg button{border:0;background:var(--card);color:var(--muted);font:inherit;font-size:13px;padding:6px 12px;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border:0}
+.seg button.p{background:var(--ok);color:#fff}.seg button.a{background:var(--bad);color:#fff}.seg button.l{background:var(--accent);color:#2a1d00}
+dialog{border:1px solid var(--line);border-radius:12px;padding:24px;background:var(--card);color:var(--text);width:min(420px,92vw)}
+dialog::backdrop{background:rgba(10,20,30,.5)}
+dialog h3{margin:0 0 16px}
+dialog label{display:block;font-size:13px;color:var(--muted);margin-bottom:12px}
+dialog label input,dialog label select{display:block;width:100%;margin-top:4px;color:var(--text)}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+#login{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:10}
+#login form{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px;width:min(360px,92vw)}
+#login h3{margin:0 0 16px}#login label{display:block;font-size:13px;color:var(--muted);margin-bottom:12px}
+#login input{display:block;width:100%;margin-top:4px}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin:0 0 8px}
+@media(max-width:760px){body{grid-template-columns:1fr}aside{position:static;height:auto;padding:12px}aside p{display:none}nav{display:flex;overflow-x:auto;gap:4px}nav button{white-space:nowrap;width:auto}main{padding:20px 14px}}
+</style>
+</head>
+<body>
+<aside>
+  <h1>Trường THPT Minh Khai</h1>
+  <p>Hệ thống quản lý nhà trường</p>
+  <nav id="nav"></nav>
+  <div id="who" style="margin:20px 8px 8px;font-size:12px;color:#AFC2D6"></div>
+  <button class="b" id="lo" style="margin:0 8px">Đăng xuất</button>
+</aside>
+<main id="main"></main>
+<dialog id="dlg"><h3 id="dt"></h3><div id="df"></div><div class="row"><button class="b" id="dc">Hủy</button><button class="b p" id="ds">Lưu</button></div></dialog>
+
+<div id="login"><form id="lf"><h3>Đăng nhập hệ thống</h3>
+<label>Email<input id="le" type="email" required autocomplete="username"></label>
+<label>Mật khẩu<input id="lp" type="password" required autocomplete="current-password"></label>
+<p class="err" id="lerr"></p><button class="b p" style="width:100%">Đăng nhập</button></form></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const KEY = 'qltruong_v1';
+const $ = s => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 9);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = () => new Date().toISOString().slice(0, 10);
+const SUBJECTS = [['toan', 'Toán'], ['van', 'Ngữ văn'], ['anh', 'Tiếng Anh']];
+
+// ===== CẤU HÌNH SUPABASE: dán thông tin dự án của bạn vào đây =====
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+// ==================================================================
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const EMPTY = () => ({teachers:[], classes:[], students:[], grades:{}, att:{}});
+let db = EMPTY(), me = null, timer;
+const isAdmin = () => me?.role === 'admin';
+
+function save() {
+  clearTimeout(timer);
+  timer = setTimeout(async () => {
+    const keys = isAdmin() ? Object.keys(db) : ['grades', 'att'];
+    const { error } = await sb.from('kv').upsert(keys.map(k => ({key: k, value: db[k]})));
+    if (error) alert('Không lưu được dữ liệu: ' + error.message);
+  }, 500);
+}
+async function loadAll() {
+  const { data, error } = await sb.from('kv').select('key,value');
+  if (error) return alert('Không tải được dữ liệu: ' + error.message);
+  db = EMPTY(); data.forEach(r => { db[r.key] = r.value; });
+}
+
+const st = {view:'dash', q:'', cls:'', gCls:'', aCls:'', aDate:today()};
+const firstClass = () => db.classes[0]?.id || '';
+const clsName = id => db.classes.find(c => c.id === id)?.name || '—';
+const teacherName = id => db.teachers.find(t => t.id === id)?.name || '—';
+const avg = sid => { const g = db.grades[sid] || {}; const v = SUBJECTS.map(([k]) => g[k]).filter(x => x !== '' && x != null).map(Number); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+const rank = a => a == null ? ['—', ''] : a >= 8 ? ['Giỏi', 'Giỏi'] : a >= 6.5 ? ['Khá', 'Khá'] : a >= 5 ? ['Trung bình', 'TB'] : ['Yếu', 'Yếu'];
+const rankTag = a => { const [t, c] = rank(a); return `<span class="tag ${c}">${t}</span>`; };
+
+const NAV = [['dash','Tổng quan'],['students','Học sinh'],['teachers','Giáo viên'],['classes','Lớp học'],['grades','Điểm số'],['att','Điểm danh']];
+
+const empty = m => `<div class="empty">${m}</div>`;
+const classOpts = (sel, all) => (all ? `<option value="">Tất cả lớp</option>` : '') + db.classes.map(c => `<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+
+const views = {
+  dash() {
+    const marked = Object.keys(db.att).filter(k => k.startsWith(today())).map(k => db.att[k]);
+    const present = marked.filter(x => x !== 'a').length;
+    const avgs = db.students.map(s => avg(s.id)).filter(x => x != null);
+    const all = avgs.length ? (avgs.reduce((a, b) => a + b, 0) / avgs.length).toFixed(2) : '—';
+    return `<h2>Tổng quan</h2><p class="sub">Số liệu của nhà trường hôm nay, ${new Date().toLocaleDateString('vi-VN')}.</p>
+    <div class="stats">
+      <div class="stat hi"><b>${db.students.length}</b><span>Học sinh</span></div>
+      <div class="stat"><b>${db.teachers.length}</b><span>Giáo viên</span></div>
+      <div class="stat"><b>${db.classes.length}</b><span>Lớp học</span></div>
+      <div class="stat"><b>${all}</b><span>Điểm trung bình toàn trường</span></div>
+      <div class="stat"><b>${marked.length ? Math.round(present / marked.length * 100) + '%' : '—'}</b><span>Chuyên cần hôm nay</span></div>
+    </div>
+    <div class="wrap"><table><tr><th>Lớp</th><th>Giáo viên chủ nhiệm</th><th>Sĩ số</th><th>Điểm TB lớp</th></tr>
+    ${db.classes.map(c => { const ss = db.students.filter(s => s.cls === c.id); const a = ss.map(s => avg(s.id)).filter(x => x != null); return `<tr><td>${esc(c.name)}</td><td>${esc(teacherName(c.teacher))}</td><td>${ss.length}</td><td>${a.length ? (a.reduce((x, y) => x + y, 0) / a.length).toFixed(2) : '—'}</td></tr>`; }).join('') || `<tr><td colspan="4">${empty('Chưa có lớp. Vào mục Lớp học để thêm lớp.')}</td></tr>`}
+    </table></div>`;
+  },
+  students() {
+    const q = st.q.toLowerCase();
+    const list = db.students.filter(s => (!st.cls || s.cls === st.cls) && s.name.toLowerCase().includes(q));
+    return `<h2>Học sinh</h2><p class="sub">Thêm, sửa và tìm kiếm hồ sơ học sinh.</p>
+    <div class="bar"><input id="q" class="grow" placeholder="Tìm theo tên học sinh" value="${esc(st.q)}"><select id="fcls">${classOpts(st.cls, true)}</select>
+    <button class="b" data-a="csv">Xuất CSV</button><button class="b p" data-a="add-student">Thêm học sinh</button></div>
+    <div class="wrap">${list.length ? `<table><tr><th>Họ tên</th><th>Lớp</th><th>Ngày sinh</th><th>Giới tính</th><th>Điện thoại</th><th></th></tr>${list.map(s => `<tr><td>${esc(s.name)}</td><td>${esc(clsName(s.cls))}</td><td>${esc(s.dob)}</td><td>${esc(s.gender)}</td><td>${esc(s.phone)}</td><td class="act"><button class="b" data-a="edit-student" data-id="${s.id}">Sửa</button><button class="b d" data-a="del-student" data-id="${s.id}">Xóa</button></td></tr>`).join('')}</table>` : empty('Không có học sinh phù hợp. Bấm “Thêm học sinh” để tạo hồ sơ mới.')}</div>`;
+  },
+  teachers() {
+    return `<h2>Giáo viên</h2><p class="sub">Danh sách giáo viên và môn phụ trách.</p>
+    <div class="bar"><span class="grow"></span><button class="b p" data-a="add-teacher">Thêm giáo viên</button></div>
+    <div class="wrap">${db.teachers.length ? `<table><tr><th>Họ tên</th><th>Môn dạy</th><th>Điện thoại</th><th></th></tr>${db.teachers.map(t => `<tr><td>${esc(t.name)}</td><td>${esc(t.subject)}</td><td>${esc(t.phone)}</td><td class="act"><button class="b" data-a="edit-teacher" data-id="${t.id}">Sửa</button><button class="b d" data-a="del-teacher" data-id="${t.id}">Xóa</button></td></tr>`).join('')}</table>` : empty('Chưa có giáo viên nào.')}</div>`;
+  },
+  classes() {
+    return `<h2>Lớp học</h2><p class="sub">Quản lý lớp và giáo viên chủ nhiệm.</p>
+    <div class="bar"><span class="grow"></span><button class="b p" data-a="add-class">Thêm lớp</button></div>
+    <div class="wrap">${db.classes.length ? `<table><tr><th>Tên lớp</th><th>Chủ nhiệm</th><th>Sĩ số</th><th></th></tr>${db.classes.map(c => `<tr><td>${esc(c.name)}</td><td>${esc(teacherName(c.teacher))}</td><td>${db.students.filter(s => s.cls === c.id).length}</td><td class="act"><button class="b" data-a="edit-class" data-id="${c.id}">Sửa</button><button class="b d" data-a="del-class" data-id="${c.id}">Xóa</button></td></tr>`).join('')}</table>` : empty('Chưa có lớp nào.')}</div>`;
+  },
+  grades() {
+    const cid = st.gCls || firstClass();
+    const ss = db.students.filter(s => s.cls === cid);
+    return `<h2>Điểm số</h2><p class="sub">Nhập điểm từ 0 đến 10. Điểm trung bình và xếp loại tự cập nhật.</p>
+    <div class="bar"><select id="gcls">${classOpts(cid)}</select></div>
+    <div class="wrap">${ss.length ? `<table><tr><th>Học sinh</th>${SUBJECTS.map(x => `<th>${x[1]}</th>`).join('')}<th>Trung bình</th><th>Xếp loại</th></tr>${ss.map(s => { const g = db.grades[s.id] || {}; return `<tr data-sid="${s.id}"><td>${esc(s.name)}</td>${SUBJECTS.map(([k]) => `<td><input class="g" type="number" min="0" max="10" step="0.25" data-k="${k}" value="${g[k] ?? ''}" aria-label="${esc(s.name)}"></td>`).join('')}<td id="avg-${s.id}">${avg(s.id) == null ? '—' : avg(s.id).toFixed(2)}</td><td id="rk-${s.id}">${rankTag(avg(s.id))}</td></tr>`; }).join('')}</table>` : empty('Lớp này chưa có học sinh.')}</div>`;
+  },
+  att() {
+    const cid = st.aCls || firstClass();
+    const ss = db.students.filter(s => s.cls === cid);
+    return `<h2>Điểm danh</h2><p class="sub">Chọn lớp và ngày, bấm trạng thái cho từng học sinh. Dữ liệu tự lưu.</p>
+    <div class="bar"><select id="acls">${classOpts(cid)}</select><input type="date" id="adate" value="${st.aDate}"></div>
+    <div class="wrap">${ss.length ? `<table><tr><th>Học sinh</th><th>Trạng thái</th></tr>${ss.map(s => { const v = db.att[st.aDate + '|' + s.id]; return `<tr><td>${esc(s.name)}</td><td><div class="seg">${[['p','Có mặt'],['l','Đi muộn'],['a','Vắng']].map(([k, t]) => `<button class="${v === k ? k : ''}" data-a="mark" data-id="${s.id}" data-v="${k}">${t}</button>`).join('')}</div></td></tr>`; }).join('')}</table>` : empty('Lớp này chưa có học sinh.')}</div>`;
+  }
+};
+
+function render() {
+  const f = document.activeElement?.id;
+  $('#nav').innerHTML = NAV.map(([k, t]) => `<button data-a="nav" data-id="${k}" class="${st.view === k ? 'on' : ''}">${t}</button>`).join('');
+  $('#main').innerHTML = views[st.view]();
+  if (!isAdmin()) document.querySelectorAll('[data-a^="add-"],[data-a^="edit-"],[data-a^="del-"]').forEach(x => x.remove());
+  if (f) { const e = document.getElementById(f); if (e) { e.focus(); try { e.setSelectionRange(e.value.length, e.value.length); } catch (x) {} } }
+}
+
+// ---- Biểu mẫu thêm / sửa ----
+function openForm(title, fields, vals, onSave) {
+  $('#dt').textContent = title;
+  $('#df').innerHTML = fields.map(f => `<label>${f.label}${f.options ? `<select id="f_${f.k}">${f.options.map(o => `<option value="${esc(o[0])}" ${o[0] === vals[f.k] ? 'selected' : ''}>${esc(o[1])}</option>`).join('')}</select>` : `<input id="f_${f.k}" type="${f.type || 'text'}" value="${esc(vals[f.k] ?? '')}">`}</label>`).join('');
+  $('#ds').onclick = () => {
+    const out = {};
+    for (const f of fields) out[f.k] = $('#f_' + f.k).value.trim();
+    if (fields[0] && !out[fields[0].k]) { $('#f_' + fields[0].k).focus(); return; }
+    onSave(out); save(); $('#dlg').close(); render();
+  };
+  $('#dlg').showModal();
+}
+$('#dc').onclick = () => $('#dlg').close();
+
+const studentFields = () => [{k:'name',label:'Họ và tên'},{k:'cls',label:'Lớp',options:db.classes.map(c => [c.id, c.name])},{k:'dob',label:'Ngày sinh',type:'date'},{k:'gender',label:'Giới tính',options:[['Nam','Nam'],['Nữ','Nữ']]},{k:'phone',label:'Điện thoại phụ huynh'}];
+const teacherFields = [{k:'name',label:'Họ và tên'},{k:'subject',label:'Môn dạy'},{k:'phone',label:'Điện thoại'}];
+const classFields = () => [{k:'name',label:'Tên lớp'},{k:'teacher',label:'Giáo viên chủ nhiệm',options:[['', '— Chưa chọn —'], ...db.teachers.map(t => [t.id, t.name])]}];
+
+function crud(kind, coll, fields, label) {
+  return {
+    add: () => openForm('Thêm ' + label, typeof fields === 'function' ? fields() : fields, {}, v => db[coll].push({id: uid(), ...v})),
+    edit: id => { const o = db[coll].find(x => x.id === id); openForm('Sửa ' + label, typeof fields === 'function' ? fields() : fields, o, v => Object.assign(o, v)); },
+    del: id => {
+      if (kind === 'class' && db.students.some(s => s.cls === id)) return alert('Lớp còn học sinh. Hãy chuyển học sinh sang lớp khác trước khi xóa.');
+      if (!confirm('Xóa ' + label + ' này?')) return;
+      db[coll] = db[coll].filter(x => x.id !== id);
+      if (kind === 'teacher') db.classes.forEach(c => { if (c.teacher === id) c.teacher = ''; });
+      save(); render();
+    }
+  };
+}
+const C = {student: crud('student', 'students', studentFields, 'học sinh'), teacher: crud('teacher', 'teachers', teacherFields, 'giáo viên'), class: crud('class', 'classes', classFields, 'lớp')};
+
+function exportCsv() {
+  const rows = [['Họ tên','Lớp','Ngày sinh','Giới tính','Điện thoại'], ...db.students.map(s => [s.name, clsName(s.cls), s.dob, s.gender, s.phone])];
+  const csv = '\ufeff' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
+  a.download = 'hoc-sinh.csv'; a.click();
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el) return;
+  const a = el.dataset.a, id = el.dataset.id;
+  if (a === 'nav') { st.view = id; render(); }
+  else if (a === 'csv') exportCsv();
+  else if (a === 'mark') { const k = st.aDate + '|' + id; db.att[k] === el.dataset.v ? delete db.att[k] : db.att[k] = el.dataset.v; save(); render(); }
+  else { const [act, kind] = a.split('-'); if (C[kind]) C[kind][act](id); }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'q') { st.q = t.value; render(); }
+  else if (t.classList.contains('g')) {
+    const sid = t.closest('tr').dataset.sid;
+    let v = t.value === '' ? '' : Math.min(10, Math.max(0, Number(t.value)));
+    (db.grades[sid] = db.grades[sid] || {})[t.dataset.k] = v; save();
+    const a = avg(sid); $('#avg-' + sid).textContent = a == null ? '—' : a.toFixed(2); $('#rk-' + sid).innerHTML = rankTag(a);
+  }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'fcls') { st.cls = t.value; render(); }
+  else if (t.id === 'gcls') { st.gCls = t.value; render(); }
+  else if (t.id === 'acls') { st.aCls = t.value; render(); }
+  else if (t.id === 'adate') { st.aDate = t.value || today(); render(); }
+});
+const showLogin = msg => { $('#login').style.display = 'grid'; $('#lerr').textContent = msg || ''; };
+async function start() {
+  if (SUPABASE_URL.includes('YOUR-PROJECT')) return showLogin('Chưa cấu hình Supabase. Xem README.md.');
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return showLogin();
+  const { data: p } = await sb.from('profiles').select('name,role').eq('id', session.user.id).single();
+  if (!p) { await sb.auth.signOut(); return showLogin('Tài khoản chưa được cấp quyền.'); }
+  me = p; await loadAll();
+  $('#login').style.display = 'none';
+  $('#who').textContent = (p.name || session.user.email) + ' · ' + (isAdmin() ? 'Quản trị' : 'Giáo viên');
+  render();
+}
+$('#lf').onsubmit = async e => {
+  e.preventDefault();
+  const { error } = await sb.auth.signInWithPassword({email: $('#le').value.trim(), password: $('#lp').value});
+  if (error) return showLogin('Sai email hoặc mật khẩu.');
+  $('#lp').value = ''; start();
+};
+$('#lo').onclick = async () => { await sb.auth.signOut(); me = null; db = EMPTY(); showLogin(); };
+document.addEventListener('visibilitychange', () => { if (!document.hidden && me) loadAll().then(render); });
+start();
+</script>
+</body>
+</html>
